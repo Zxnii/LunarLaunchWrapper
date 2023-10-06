@@ -4,7 +4,6 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.utils.io.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -17,7 +16,6 @@ import java.io.InputStream
 import java.nio.file.Path
 import java.security.MessageDigest
 import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 import kotlin.io.path.*
 
 @Serializable
