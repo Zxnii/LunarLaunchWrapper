@@ -38,6 +38,5 @@ task("run", type = JavaExec::class) {
 
     args = listOf("--version", "1.8.9", "--module", "lunar")
     jvmArgs = listOf("--add-opens", "java.base/java.io=ALL-UNNAMED", "--add-opens", "java.base/java.lang=ALL-UNNAMED")
-
     classpath = sourceSets.main.get().runtimeClasspath
 }

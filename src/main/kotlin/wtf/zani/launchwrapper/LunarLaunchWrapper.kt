@@ -51,7 +51,7 @@ suspend fun main(args: Array<String>) {
             .artifacts
             .filter { it.type == "NATIVES" }
             .map {
-                offlineDir.resolve(it.name.replace(".zip", ""))
+                offlineDir.resolve("$offlineDir/natives")
             }
 
     val classpath =
@@ -76,7 +76,10 @@ suspend fun main(args: Array<String>) {
         "--launcherVersion", "3.1.0",
         "--classpathDir", offlineDir.toString(),
         "--workingDirectory", offlineDir.toString(),
-        "--ichorExternalFiles", externalFiles.joinToString(",")
+        "--ichorClassPath", classpath.joinToString(","),
+        "-Djava.library.path=$offlineDir/natives",
+        "--ichorExternalFiles", externalFiles.joinToString(","),
+        "--textureDir", "$offlineDir/textures"
     )
 
     minecraftArgs += args.toList()
