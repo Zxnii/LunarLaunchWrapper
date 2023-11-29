@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import wtf.zani.launchwrapper.util.LunarUtils
 import wtf.zani.launchwrapper.util.SystemInfo
 import wtf.zani.launchwrapper.util.toHexString
 import java.io.File
@@ -26,15 +27,17 @@ private data class ManifestResponse(
 
 @Serializable
 data class LauncherInfo(
+    @SerialName("installation_id")
+    val installationId: String,
     val os: String,
     @SerialName("os_release")
     val osRelease: String = "0",
     val arch: String,
     val module: String,
-    val launchType: String = "OFFLINE",
     val version: String,
     val branch: String = "master",
-    val launcherVersion: String = "3.1.0",
+    @SerialName("launcher_version")
+    val launcherVersion: String = "3.1.3",
     val hwid: String = ""
 ) {
     @Transient
@@ -53,6 +56,7 @@ data class Artifact(
 data class VersionManifest(
     val artifacts: List<Artifact>
 ) {
+
     suspend fun download(directory: Path) {
         artifacts
             .forEach { artifact ->
@@ -117,6 +121,7 @@ data class VersionManifest(
             val systemInfo = SystemInfo.get()
 
             val launcherInfo = LauncherInfo(
+                installationId = LunarUtils.getInstallationId(),
                 os = systemInfo.os.internalName,
                 arch = systemInfo.arch,
                 osRelease = systemInfo.os.version(),
@@ -125,7 +130,7 @@ data class VersionManifest(
             )
 
             val cacheFile = File(launcherInfo.cacheName)
-
+            println(json.encodeToString(launcherInfo))
             return try {
                 val rawResponse = httpClient.post("https://api.lunarclientprod.com/launcher/launch") {
                     header("Content-Type", "application/json")
@@ -133,11 +138,12 @@ data class VersionManifest(
                         json.encodeToString(launcherInfo)
                     )
                 }.bodyAsText()
+                println(rawResponse)
 
                 val response = json.decodeFromString<ManifestResponse>(rawResponse)
 
                 if (!response.success) {
-                    throw Exception("Failed to fetch manifest")
+                    throw Exception("Failed to fetch manifest : ")
                 }
 
                 cacheFile.writeText(json.encodeToString(response.launchTypeData!!))
