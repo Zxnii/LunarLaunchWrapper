@@ -1,6 +1,9 @@
 package wtf.zani.launchwrapper
 
 import joptsimple.OptionParser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.zani.launchwrapper.loader.LibraryLoader
 import wtf.zani.launchwrapper.loader.LunarLoader
 import wtf.zani.launchwrapper.version.VersionManifest
@@ -8,10 +11,13 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
 private const val nativeDirKey = "wtf.zani.launchwrapper.nativedir"
+
 private val offlineDir = Path(System.getProperty("user.home"), ".lunarclient", "offline", "multiver")
+private val textureDir = Path(System.getProperty("user.home"), ".lunarclient", "textures")
 
 suspend fun main(args: Array<String>) {
     offlineDir.createDirectories()
+    textureDir.createDirectories()
 
     val optionParser = OptionParser()
 
@@ -35,7 +41,7 @@ suspend fun main(args: Array<String>) {
     val gameVersion = options.valueOf(versionSpec)
     val lunarModule = options.valueOf(moduleSpec)
 
-    val manifest = VersionManifest.fetch(gameVersion, lunarModule)
+    val (version, textures, cache) = VersionManifest.fetch(gameVersion, lunarModule)
         ?: run {
             println("WHOOPS!")
             println("We failed to fetch the version manifest, this is likely because you are offline and had no cached version.")
@@ -44,24 +50,29 @@ suspend fun main(args: Array<String>) {
             return
         }
 
-    manifest.download(offlineDir)
+    withContext(Dispatchers.IO) {
+        launch { version.download(offlineDir) }
+        launch { textures.download(textureDir) }
+    }
+
+    cache?.write()
 
     val natives =
-        manifest
+        version
             .artifacts
             .filter { it.type == "NATIVES" }
             .map {
-                offlineDir.resolve("$offlineDir/natives")
+                offlineDir.resolve(it.name.replace(".zip", ""))
             }
 
     val classpath =
-        manifest
+        version
             .artifacts
             .filter { it.type == "CLASS_PATH" }
             .map { offlineDir.resolve(it.name) }
 
     val externalFiles =
-        manifest
+        version
             .artifacts
             .filter { it.type == "EXTERNAL_FILE" }
             .map { it.name }
@@ -76,10 +87,8 @@ suspend fun main(args: Array<String>) {
         "--launcherVersion", "3.1.0",
         "--classpathDir", offlineDir.toString(),
         "--workingDirectory", offlineDir.toString(),
-        "--ichorClassPath", classpath.joinToString(","),
-        "-Djava.library.path=$offlineDir/natives",
-        "--ichorExternalFiles", externalFiles.joinToString(","),
-        "--textureDir", "$offlineDir/textures"
+        "--ichorClassPath", classpath.map { it.fileName }.joinToString(","),
+        "--ichorExternalFiles", externalFiles.joinToString(",")
     )
 
     minecraftArgs += args.toList()

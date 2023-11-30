@@ -1,24 +1,29 @@
 package wtf.zani.launchwrapper.loader
 
-import java.net.URLClassLoader
+import java.lang.invoke.MethodHandle
+import java.lang.invoke.MethodHandles
 
 @Suppress("unused")
 object DefinitionProxy {
-    private val defineClass = ClassLoader::class.java.getDeclaredMethod("defineClass",
-        String::class.java, ByteArray::class.java, Int::class.java, Int::class.java)
+    private val defineClass: MethodHandle
 
     init {
-        defineClass.isAccessible = true
+        val defineClassMethod = ClassLoader::class.java.getDeclaredMethod("defineClass",
+            String::class.java, ByteArray::class.java, Int::class.java, Int::class.java)
+        val lookup = MethodHandles.lookup()
+
+        defineClassMethod.isAccessible = true
+        defineClass = lookup.unreflect(defineClassMethod)
     }
 
     @JvmStatic
-    fun defineClass(instance: URLClassLoader, name: String, data: ByteArray, offset: Int, length: Int): Class<*> {
+    fun defineClass(instance: ClassLoader, name: String, data: ByteArray, offset: Int, length: Int): Class<*> {
         val transformed = TransformationHandler.transformClass(data)
-            ?: return defineClass.invoke(instance,
+            ?: return defineClass.invokeExact(instance,
                 name, data, offset, length) as Class<*>
 
         return defineClass
-            .invoke(
+            .invokeExact(
                 instance,
                 transformed.first.replace("/", "."),
                 transformed.second,

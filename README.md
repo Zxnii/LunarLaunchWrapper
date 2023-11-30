@@ -4,7 +4,7 @@ LunarLaunchWrapper is a tiny kotlin wrapper to download and launch Lunar from th
 
 ## How to use
 
-To use this, simply start the jar file with the `-module` and `-version` argument as well as the main class `wtf.zani.launchwrapper.LunarLaunchWrapper`
+To use this, simply start the jar file with the `--module` and `--version` argument as well as the main class `wtf.zani.launchwrapper.LunarLaunchWrapper`
 
 If you want to use this on the PrismMC launcher, you will have to create a new instance with the version of your choice. Then edit that instance and replace the minecraft jar with LunarLaunchWrapper.jar and replace the content of the file by this :
 ```json
@@ -39,8 +39,8 @@ If you want to use this on the PrismMC launcher, you will have to create a new i
 ```
 Adapt the above for your version.
 
-## Using weave
+## Using Weave
 
-If you want to use weave you will have to use a custom version of weave. You can use the one directly in the repository :)
+If you want to use weave you will have to use a custom version of Weave. You can use the one in the releases :)
 
 Enjoy :)
