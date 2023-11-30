@@ -95,6 +95,9 @@ suspend fun main(args: Array<String>) {
 
     println("Launching Lunar Client for $gameVersion with module $lunarModule. Game args: ${minecraftArgs.joinToString(", ")}")
 
+    System.setProperty("llw.lunar.module", lunarModule)
+    System.setProperty("llw.minecraft.version", gameVersion)
+
     val loader = LunarLoader(classpath.map { it.toUri().toURL() }.toTypedArray())
     val genesis = loader.loadClass("com.moonsworth.lunar.genesis.Genesis")
 
