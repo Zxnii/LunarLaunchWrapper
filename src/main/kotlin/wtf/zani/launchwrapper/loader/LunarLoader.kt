@@ -5,6 +5,10 @@ import java.net.URLClassLoader
 
 class LunarLoader(urls: Array<URL>) : URLClassLoader(urls) {
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
+        if (name.startsWith("wtf.zani.launchwrapper.patches.")) {
+            return super.loadClass(name, resolve)
+        }
+
         synchronized(getClassLoadingLock(name)) {
             return findLoadedClass(name) ?: run {
                 val data = getResourceAsStream("${name.replace(".", "/")}.class")

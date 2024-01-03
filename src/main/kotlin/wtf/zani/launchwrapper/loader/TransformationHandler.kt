@@ -5,11 +5,11 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
 import wtf.zani.launchwrapper.loader.transformers.GenesisTransformer
 import wtf.zani.launchwrapper.loader.transformers.LibraryTransformer
+import wtf.zani.launchwrapper.loader.transformers.Transformer
 
 object TransformationHandler {
-    private val transformers = arrayOf(
-        GenesisTransformer(),
-        LibraryTransformer()
+    private val transformers = mutableListOf(
+        GenesisTransformer(), LibraryTransformer()
     )
 
     fun transformClass(data: ByteArray): Pair<String, ByteArray>? {
@@ -17,17 +17,20 @@ object TransformationHandler {
 
         ClassReader(data).accept(node, 0)
 
-        val transformer = transformers.find {
-            (it.classNames.find { name -> node.name.startsWith(name) } != null && !it.exact)
-                    || it.classNames.find { name -> name == node.name } != null
-        } ?: return null
+        val transformersRan = transformers.filter {
+            (it.classNames.find { name -> node.name.startsWith(name) } != null && !it.exact) || it.classNames.find { name -> name == node.name } != null
+        }.map { it.transform(node) }.contains(true)
 
-        transformer.transform(node)
+        if (!transformersRan) return null
 
         val writer = ClassWriter(ClassWriter.COMPUTE_MAXS)
 
         node.accept(writer)
 
         return Pair(node.name, writer.toByteArray())
+    }
+
+    fun addTransformer(transformer: Transformer) {
+        transformers.add(transformer)
     }
 }

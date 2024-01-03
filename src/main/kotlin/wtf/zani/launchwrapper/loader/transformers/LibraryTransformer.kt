@@ -7,7 +7,7 @@ class LibraryTransformer : Transformer(
     "com/luciad/imageio/webp/NativeLibraryUtils",
     exact = true
 ) {
-    override fun transform(node: ClassNode) {
+    override fun transform(node: ClassNode): Boolean {
         println("transforming ${node.name}")
 
         node.methods.forEach { method ->
@@ -19,5 +19,7 @@ class LibraryTransformer : Transformer(
                     }
                 }
         }
+
+        return true
     }
 }

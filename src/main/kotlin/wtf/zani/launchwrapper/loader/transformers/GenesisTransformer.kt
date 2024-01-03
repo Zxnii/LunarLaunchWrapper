@@ -5,7 +5,7 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodInsnNode
 
 class GenesisTransformer : Transformer("com/moonsworth/lunar/") {
-    override fun transform(node: ClassNode) {
+    override fun transform(node: ClassNode): Boolean {
         if (node.superName == "java/net/URLClassLoader") {
             node.methods.forEach { method ->
                 method
@@ -18,6 +18,10 @@ class GenesisTransformer : Transformer("com/moonsworth/lunar/") {
                         }
                     }
             }
+
+            return true
         }
+
+        return false
     }
 }

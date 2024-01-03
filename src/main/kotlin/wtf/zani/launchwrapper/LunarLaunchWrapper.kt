@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.zani.launchwrapper.loader.LibraryLoader
 import wtf.zani.launchwrapper.loader.LunarLoader
+import wtf.zani.launchwrapper.patches.AntiAntiAgent
 import wtf.zani.launchwrapper.version.VersionManifest
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -33,6 +34,12 @@ suspend fun main(args: Array<String>) {
             .withRequiredArg()
             .required()
             .ofType(String::class.java)
+    val disabledPatchesSpec =
+        optionParser
+            .accepts("disabled-patches")
+            .withRequiredArg()
+            .ofType(String::class.java)
+            .withValuesSeparatedBy(",")
 
     optionParser.allowsUnrecognizedOptions()
 
@@ -40,6 +47,17 @@ suspend fun main(args: Array<String>) {
 
     val gameVersion = options.valueOf(versionSpec)
     val lunarModule = options.valueOf(moduleSpec)
+
+    val availablePatches = arrayOf(AntiAntiAgent::class.java)
+
+    val disabledPatches = options.valuesOf(disabledPatchesSpec).filter { patch -> availablePatches.find { it.name == patch } != null }
+    val enabledPatches = availablePatches.filter { !disabledPatches.contains(it.name) }
+
+    println("Available patches: ${availablePatches.map { it.name }}")
+    println("Enabled patches: $enabledPatches")
+    println("Disabled patches: $disabledPatches")
+
+    enabledPatches.forEach { it.getConstructor().newInstance() }
 
     val (version, textures, cache) = VersionManifest.fetch(gameVersion, lunarModule)
         ?: run {
