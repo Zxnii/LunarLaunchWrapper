@@ -71,8 +71,10 @@ suspend fun main(args: Array<String>) {
             return
         }
 
+    var hashes: List<String>? = null
+
     withContext(Dispatchers.IO) {
-        launch { version.download(offlineDir) }
+        launch { hashes = version.download(offlineDir) }
         launch { textures.download(textureDir) }
     }
 
@@ -123,6 +125,8 @@ suspend fun main(args: Array<String>) {
     val genesis = loader.loadClass("com.moonsworth.lunar.genesis.Genesis")
 
     val digest = MessageDigest.getInstance("SHA-256")
+
+    hashes!!.forEach { digest.update(it.toByteArray()) }
 
     PrebakeHelper.location = offlineDir.resolve("cache/${toHexString(digest.digest(gameVersion.toByteArray()))}")
     PrebakeHelper.location.createDirectories()
