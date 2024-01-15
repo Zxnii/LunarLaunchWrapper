@@ -121,8 +121,10 @@ data class VersionManifest(
     @Transient
     var upToDate = false
 
-    suspend fun download(directory: Path) {
-        if (upToDate) return
+    suspend fun download(directory: Path): List<String> {
+        val hashes = artifacts.map { it.sha1 }
+
+        if (upToDate) return hashes
 
         println("Downloading Lunar")
 
@@ -163,7 +165,7 @@ data class VersionManifest(
             }
         }
 
-
+        return hashes
     }
 
     companion object {

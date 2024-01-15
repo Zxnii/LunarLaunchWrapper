@@ -6,8 +6,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.zani.launchwrapper.loader.LibraryLoader
 import wtf.zani.launchwrapper.loader.LunarLoader
+import wtf.zani.launchwrapper.loader.PrebakeHelper
 import wtf.zani.launchwrapper.patches.AntiAntiAgent
+import wtf.zani.launchwrapper.util.toHexString
 import wtf.zani.launchwrapper.version.VersionManifest
+import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
@@ -118,6 +121,11 @@ suspend fun main(args: Array<String>) {
 
     val loader = LunarLoader(classpath.map { it.toUri().toURL() }.toTypedArray())
     val genesis = loader.loadClass("com.moonsworth.lunar.genesis.Genesis")
+
+    val digest = MessageDigest.getInstance("SHA-256")
+
+    PrebakeHelper.location = offlineDir.resolve("cache/${toHexString(digest.digest(gameVersion.toByteArray()))}")
+    PrebakeHelper.location.createDirectories()
 
     Thread.currentThread().contextClassLoader = loader
 
