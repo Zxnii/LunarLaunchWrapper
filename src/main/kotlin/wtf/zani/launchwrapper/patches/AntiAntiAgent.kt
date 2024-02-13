@@ -6,7 +6,6 @@ import wtf.zani.launchwrapper.loader.TransformationHandler
 import wtf.zani.launchwrapper.loader.transformers.Transformer
 import wtf.zani.launchwrapper.util.getStrings
 
-@Suppress("unused")
 class AntiAntiAgent {
     init {
         TransformationHandler.addTransformer(AntiAntiAgentTransformer())

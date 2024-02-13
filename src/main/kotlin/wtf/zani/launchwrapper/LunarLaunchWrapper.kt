@@ -8,8 +8,11 @@ import wtf.zani.launchwrapper.loader.LibraryLoader
 import wtf.zani.launchwrapper.loader.LunarLoader
 import wtf.zani.launchwrapper.loader.PrebakeHelper
 import wtf.zani.launchwrapper.patches.AntiAntiAgent
+import wtf.zani.launchwrapper.patches.ipc.IpcPatch
 import wtf.zani.launchwrapper.util.toHexString
 import wtf.zani.launchwrapper.version.VersionManifest
+import java.io.File
+import java.net.URL
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -19,7 +22,11 @@ private const val nativeDirKey = "wtf.zani.launchwrapper.nativedir"
 private val offlineDir = Path(System.getProperty("user.home"), ".lunarclient", "offline", "multiver")
 private val textureDir = Path(System.getProperty("user.home"), ".lunarclient", "textures")
 
+val llwDir = Path(System.getProperty("user.home"), ".llw")
+
 suspend fun main(args: Array<String>) {
+    llwDir.createDirectories()
+
     offlineDir.createDirectories()
     textureDir.createDirectories()
 
@@ -43,6 +50,9 @@ suspend fun main(args: Array<String>) {
             .withRequiredArg()
             .ofType(String::class.java)
             .withValuesSeparatedBy(",")
+    val disableUpdatesSpec =
+        optionParser
+            .accepts("disable-updates")
 
     optionParser.allowsUnrecognizedOptions()
 
@@ -51,7 +61,10 @@ suspend fun main(args: Array<String>) {
     val gameVersion = options.valueOf(versionSpec)
     val lunarModule = options.valueOf(moduleSpec)
 
-    val availablePatches = arrayOf(AntiAntiAgent::class.java)
+    val availablePatches = arrayOf(
+        AntiAntiAgent::class.java,
+        IpcPatch::class.java
+    )
 
     val disabledPatches = options.valuesOf(disabledPatchesSpec).filter { patch -> availablePatches.find { it.name == patch } != null }
     val enabledPatches = availablePatches.filter { !disabledPatches.contains(it.name) }
@@ -73,12 +86,18 @@ suspend fun main(args: Array<String>) {
 
     var hashes: List<String>? = null
 
-    withContext(Dispatchers.IO) {
-        launch { hashes = version.download(offlineDir) }
-        launch { textures.download(textureDir) }
-    }
+    if (!options.has(disableUpdatesSpec)) {
+        withContext(Dispatchers.IO) {
+            launch { hashes = version.download(offlineDir) }
+            launch { textures.download(textureDir) }
+        }
 
-    cache?.write()
+        cache?.write()
+    } else {
+        println("Updates are disabled")
+
+        hashes = cache?.version?.artifacts?.map { it.sha1 }
+    }
 
     val natives =
         version
@@ -107,11 +126,12 @@ suspend fun main(args: Array<String>) {
     System.setProperty("org.lwjgl.librarypath", System.getProperty(nativeDirKey))
 
     val minecraftArgs = mutableListOf(
-        "--launcherVersion", "3.1.0",
+        "--launcherVersion", "3.2.3",
         "--classpathDir", offlineDir.toString(),
         "--workingDirectory", offlineDir.toString(),
         "--ichorClassPath", classpath.map { it.fileName }.joinToString(","),
-        "--ichorExternalFiles", externalFiles.joinToString(",")
+        "--ichorExternalFiles", externalFiles.joinToString(","),
+        "--webosrPath", natives.first().toString()
     )
 
     minecraftArgs += args.toList()
@@ -120,9 +140,13 @@ suspend fun main(args: Array<String>) {
 
     System.setProperty("llw.lunar.module", lunarModule)
     System.setProperty("llw.minecraft.version", gameVersion)
+    System.setProperty("llw.java.classpath", classpath.map { it.fileName }.joinToString(File.separator))
 
-    val loader = LunarLoader(classpath.map { it.toUri().toURL() }.toTypedArray())
+    val urls = classpath.map { it.toUri().toURL() }.toTypedArray()
+    val loader = LunarLoader(urls)
+
     val genesis = loader.loadClass("com.moonsworth.lunar.genesis.Genesis")
+    val bootstrapProxy = loader.loadClass("wtf.zani.launchwrapper.loader.BootstrapProxy")
 
     val digest = MessageDigest.getInstance("SHA-256")
 
@@ -134,6 +158,7 @@ suspend fun main(args: Array<String>) {
     Thread.currentThread().contextClassLoader = loader
 
     try {
+        bootstrapProxy.getMethod("setUrls", Array<URL>::class.java).invoke(null, urls)
         genesis.getMethod("main", Array<String>::class.java).invoke(null, minecraftArgs.toTypedArray())
     } catch (error: Throwable) {
         error.printStackTrace()

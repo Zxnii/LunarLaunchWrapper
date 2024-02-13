@@ -30,4 +30,15 @@ object DefinitionProxy {
                 0,
                 transformed.second.size) as Class<*>
     }
+
+    @JvmStatic
+    fun findClass(instance: ClassLoader, name: String): Class<*>? {
+        val data = instance.getResourceAsStream("${name.replace(".", "/")}.class")?.readAllBytes() ?: return null
+
+        if (TransformationHandler.getTransformers(name.replace(".", "/")).isEmpty()) {
+            return (instance as ClassLoaderExtensions).findClassWithSuper(name)
+        }
+
+        return defineClass(instance, name, data, 0, data.size)
+    }
 }

@@ -10,11 +10,17 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    maven("https://jogamp.org/deployment/maven")
 }
 
 dependencies {
     val asmVersion = "9.4"
     val ktorVersion = "2.3.3"
+
+    compileOnly("com.google.guava:guava:33.0.0-jre")
+    compileOnly("org.json:json:20231013")
+
+    implementation("dev.datlag:kcef:2024.01.07.1")
 
     implementation("org.ow2.asm:asm-tree:$asmVersion")
     implementation("org.ow2.asm:asm-util:$asmVersion")
