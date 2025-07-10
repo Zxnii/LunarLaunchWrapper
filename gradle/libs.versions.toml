@@ -1,0 +1,43 @@
+[versions]
+asm = "9.7"
+
+ktor = "2.3.12"
+
+kx-ser = "1.7.1"
+kx-coroutines = "1.8.1"
+kx-cli = "0.3.6"
+kx-datetime = "0.6.2"
+
+jbsdiff = "1.0"
+
+arrow = "2.0.1"
+commons-lang3 = "3.17.0"
+
+semver = "2.0.0"
+
+[libraries]
+arrow-core = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow" }
+arrow-coroutines = { group = "io.arrow-kt", name = "arrow-fx-coroutines", version.ref = "arrow" }
+
+kx-cli = { group = "org.jetbrains.kotlinx", name = "kotlinx-cli", version.ref = "kx-cli" }
+
+kx-ser-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kx-ser" }
+kx-ser-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kx-ser" }
+
+kx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kx-coroutines" }
+kx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kx-datetime" }
+
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kxser-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+asm-tree = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
+asm-util = { group = "org.ow2.asm", name = "asm-util", version.ref = "asm" }
+asm-commons = { group = "org.ow2.asm", name = "asm-commons", version.ref = "asm" }
+
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
+
+jbsdiff = { group = "io.sigpipe", name = "jbsdiff", version.ref = "jbsdiff" }
+
+semver = { group = "io.github.z4kn4fein", name = "semver", version.ref = "semver" }
