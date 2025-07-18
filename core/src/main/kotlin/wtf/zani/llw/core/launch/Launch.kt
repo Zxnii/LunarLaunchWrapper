@@ -54,10 +54,14 @@ suspend fun prepareArtifactConfiguration(
             ArtifactType.Classpath, ArtifactType.External -> {
                 val copyPath = config.multiverDirectory.resolve(a.name)
 
-                if (downloadPath.exists()) downloadPath.copyTo(copyPath, true)
-                else println("WARN: Artifact ${a.name} was not found, glhf..?")
-
-                Pair(a.type, copyPath)
+                if (downloadPath.exists()) {
+                    copyPath.parent.createDirectories()
+                    downloadPath.copyTo(copyPath, true)
+                    Pair(a.type, copyPath)
+                } else {
+                    println("WARN: Artifact ${a.name} was not found, glhf..?")
+                    null
+                }
             }
             ArtifactType.Natives -> {
                 unpackNatives(downloadPath)

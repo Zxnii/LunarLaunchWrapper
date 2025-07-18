@@ -61,8 +61,8 @@ data class Jre(
     val folderChecksum: String,
     val executablePathInArchive: List<String>,
     val extraArguments: List<String>,
-    val javawDownload: String,
-    val javawExeChecksum: String
+    val javawDownload: String? = null,
+    val javawExeChecksum: String? = null
 )
 
 @Serializable
