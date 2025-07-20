@@ -11,7 +11,7 @@ data class LaunchResponse(
     val licenses: List<License>,
     val textures: Textures,
     val jre: Jre,
-    val ui: Ui
+    val ui: Ui? = null
 )
 
 @Serializable

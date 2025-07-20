@@ -13,14 +13,14 @@ data class DownloadConfiguration(
     val maxAssetConcurrency: Int = max(Runtime.getRuntime().availableProcessors() * 4, 64),
     val artifacts: List<Artifact>,
     val assets: AssetIndex,
-    val ui: Ui,
-    val uiAssets: AssetIndex
+    val ui: Ui?,
+    val uiAssets: AssetIndex?
 )
 
 data class LaunchConfiguration(
     val multiverDirectory: Path,
     val textureDirectory: Path,
-    val uiDirectory: Path,
+    val uiDirectory: Path?,
     val minecraftVersion: Version,
     val additionalArgs: Collection<String> = listOf(),
     val launcherVersion: Version = MAXIMUM_SUPPORTED_LAUNCHER_VERSION,

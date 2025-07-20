@@ -150,7 +150,7 @@ private suspend fun Flow<ProgressReport>.downloadPipeline(): List<DownloadingFil
 private suspend fun download(manifest: Manifest): Triple<
     List<DownloadingFile>,
     List<DownloadingFile>,
-    List<DownloadingFile>
+    List<DownloadingFile>?
 > = coroutineScope {
     val downloader = Downloader(DownloadConfiguration(
         artifacts = manifest.launchData.artifacts,
@@ -161,9 +161,9 @@ private suspend fun download(manifest: Manifest): Triple<
     
     val artifactsJob = async { downloader.downloadArtifacts().downloadPipeline() }
     val texturesJob = async { downloader.downloadAssets().downloadPipeline() }
-    val uiJob = async { downloader.downloadUiAssets().downloadPipeline() }
+    val uiJob = async { downloader.downloadUiAssets()?.downloadPipeline() }
 
-    launch { downloader.downloadUi().downloadPipeline() }
+    launch { downloader.downloadUi()?.downloadPipeline() }
     
     Triple(
         artifactsJob.await(),

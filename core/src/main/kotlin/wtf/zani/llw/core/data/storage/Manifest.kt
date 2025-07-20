@@ -10,13 +10,13 @@ import wtf.zani.llw.core.data.schemas.response.LaunchTypeData
 
 @Serializable
 data class ManifestIndexes(
-    val uiAssets: AssetIndex,
+    val uiAssets: AssetIndex?,
     val textures: AssetIndex
 )
 
 @Serializable
 data class ManifestStoredIndexes(
-    val uiAssets: String,
+    val uiAssets: String?,
     val textures: String
 )
 
@@ -32,7 +32,7 @@ data class Manifest(
     val version: String,
     val branch: String,
     val launchData: LaunchTypeData,
-    val uiData: Ui,
+    val uiData: Ui?,
     val downloadedAt: Instant,
     private val assetHashes: ManifestStoredIndexes,
     @Transient private val _assets: Option<ManifestIndexes> = None

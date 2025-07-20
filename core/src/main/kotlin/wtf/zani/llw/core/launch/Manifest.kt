@@ -88,36 +88,43 @@ suspend fun fetchLatestManifest(
         }
     }
     
-    val uiAssetIndexJob = async {
-        when (val result = openIndex(launchResponse.ui.assets.indexSha1)) {
-            is Some -> result.value
-            is None -> {
-                client.get(launchResponse.ui.assets.indexUrl).bodyAsText().let { c ->
-                    saveIndex(AssetIndex.parse(
-                        launchResponse.ui.assets.baseUrl,
-                        launchResponse.ui.assets.indexSha1,
-                        c
-                    ))
+    val uiAssetIndexJob = 
+        launchResponse.ui?.let { u ->
+            async {
+                when (val result = openIndex(u.assets.indexSha1)) {
+                    is Some -> result.value
+                    is None -> {
+                        client.get(u.assets.indexUrl).bodyAsText().let { c ->
+                            saveIndex(
+                                AssetIndex.parse(
+                                    u.assets.baseUrl,
+                                    u.assets.indexSha1,
+                                    c
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
     
     val assetIndex = assetIndexJob.await()
-    val uiAssetIndex = uiAssetIndexJob.await()
+    val uiAssetIndex = uiAssetIndexJob?.await()
     
     Manifest(
         module,
         version,
         branch,
         launchResponse.launchTypeData,
-        Ui(
-            launchResponse.ui.sourceUrl,
-            launchResponse.ui.sourceSha1
-        ),
+        launchResponse.ui?.let { u ->
+            Ui(
+                u.sourceUrl,
+                u.sourceSha1
+            )   
+        },
         Clock.System.now(),
         ManifestStoredIndexes(
-            uiAssetIndex.hash,
+            uiAssetIndex?.hash,
             assetIndex.hash
         ),
         Some(ManifestIndexes(

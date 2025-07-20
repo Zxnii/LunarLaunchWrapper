@@ -31,11 +31,13 @@ suspend fun prepareUi(
     config: LaunchConfiguration,
     manifest: Manifest
 ) {
+    if (manifest.uiData == null || config.uiDirectory == null) return
+    
     unzip(uiDirectory.resolve(manifest.uiData.hash), config.uiDirectory)
     prepareAssets(
         config.uiDirectory.resolve("assets"),
         uiDirectory,
-        manifest.assets.uiAssets
+        manifest.assets.uiAssets!!
     )
 }
 
@@ -147,6 +149,11 @@ fun launch(
     catch(ex: InvocationTargetException) { raise(LaunchError.LunarException(ex.cause ?: ex)) }
 }
 
+private fun optionalArgs(cond: Boolean, vararg arguments: String): Array<out String> {
+    return if (cond) { arguments }
+    else arrayOf()
+}
+
 private fun buildArgs(
     config: LaunchConfiguration,
     artifacts: ArtifactConfiguration
@@ -169,7 +176,11 @@ private fun buildArgs(
             .natives
             .first()
             .toString(),
-    "--uiDir", config.uiDirectory.toString(),
+    *optionalArgs(
+        config.uiDirectory != null,
+        "--uiDir",
+        config.uiDirectory.toString()
+    ),
     "--installationId", config.installId,
     "--version", config.minecraftVersion.toString(),
     *config.additionalArgs.toTypedArray()

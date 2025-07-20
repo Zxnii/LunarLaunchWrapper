@@ -64,22 +64,26 @@ class Downloader(private val config: DownloadConfiguration) {
         }
     }
     
-    fun downloadUi(): Flow<ProgressReport> =
-        downloadFile(
-            config.ui.url,
-            uiDirectory.resolve(config.ui.hash),
-            config.ui.hash,
-            0uL,
-            "ui.zip"
-        )
+    fun downloadUi(): Flow<ProgressReport>? =
+        config.ui?.let { f ->
+            downloadFile(
+                f.url,
+                uiDirectory.resolve(f.hash),
+                f.hash,
+                0uL,
+                "ui.zip"
+            )
+        }
         
     
-    fun downloadUiAssets(): Flow<ProgressReport> =
-        downloadIndex(
-            config.uiAssets,
-            uiDirectory,
-            config.maxAssetConcurrency
-        )
+    fun downloadUiAssets(): Flow<ProgressReport>? =
+        config.uiAssets?.let { a ->
+            downloadIndex(
+                a,
+                uiDirectory,
+                config.maxAssetConcurrency
+            )
+        }
     
     fun downloadAssets(): Flow<ProgressReport> =
         downloadIndex(
