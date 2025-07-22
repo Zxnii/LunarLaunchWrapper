@@ -4,6 +4,7 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
 import wtf.zani.llw.core.asm.Transformer
+import wtf.zani.llw.core.internal.transformers.AuthenticatorTransformer
 import wtf.zani.llw.core.internal.transformers.GenesisTransformer
 import wtf.zani.llw.core.internal.transformers.NativesTransformer
 import wtf.zani.llw.core.llwRoot
@@ -11,7 +12,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.writeBytes
 
 internal object Transformers {
-    private val transformers = mutableListOf(GenesisTransformer, NativesTransformer)
+    private val transformers = mutableListOf(GenesisTransformer, NativesTransformer, AuthenticatorTransformer)
     
     fun transform(data: ByteArray): Pair<String, ByteArray>? {
         val node = ClassNode()
