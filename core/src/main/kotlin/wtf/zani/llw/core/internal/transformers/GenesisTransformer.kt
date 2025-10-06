@@ -27,7 +27,7 @@ internal object GenesisTransformer : Transformer {
 
                 node.methods.add(findClassWithSuper)
 
-                transformClassDefintions(node)
+                transformClassDefinitions(node)
                 transformBootstrapClassLoader(node)
 
                 true
@@ -47,7 +47,7 @@ internal object GenesisTransformer : Transformer {
         }
     }
     
-    private fun transformClassDefintions(node: ClassNode) {
+    private fun transformClassDefinitions(node: ClassNode) {
         node.methods.forEach { method ->
             method
                 .instructions
@@ -56,7 +56,12 @@ internal object GenesisTransformer : Transformer {
                         when {
                             insn.owner == node.name && insn.name == "defineClass" -> {
                                 insn.owner = "wtf/zani/llw/core/internal/ClassProxyKt"
-                                insn.desc = "(Ljava/lang/ClassLoader;Ljava/lang/String;[BII)Ljava/lang/Class;"
+                                insn.desc =
+                                    if (insn.desc.contains("Ljava/security/ProtectionDomain;"))
+                                        "(Ljava/lang/ClassLoader;Ljava/lang/String;[BIILjava/security/ProtectionDomain;)Ljava/lang/Class;"
+                                    else
+                                        "(Ljava/lang/ClassLoader;Ljava/lang/String;[BII)Ljava/lang/Class;"
+                                        
                                 insn.opcode = INVOKESTATIC
                             }
                             insn.owner == node.superName && insn.name == "findClass" && method.name == "findClass" -> {

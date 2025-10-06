@@ -1,11 +1,19 @@
 package wtf.zani.llw.core.internal
 
 import java.lang.invoke.MethodHandles
+import java.security.ProtectionDomain
 
+private val lookup = MethodHandles.lookup()
 private val defineClass = run {
     val defineClassMethod = ClassLoader::class.java.getDeclaredMethod("defineClass",
         String::class.java, ByteArray::class.java, Int::class.java, Int::class.java)
-    val lookup = MethodHandles.lookup()
+
+    defineClassMethod.isAccessible = true
+    lookup.unreflect(defineClassMethod)
+}
+private val defineClassWithDomain = run {
+    val defineClassMethod = ClassLoader::class.java.getDeclaredMethod("defineClass",
+        String::class.java, ByteArray::class.java, Int::class.java, Int::class.java, ProtectionDomain::class.java)
 
     defineClassMethod.isAccessible = true
     lookup.unreflect(defineClassMethod)
@@ -23,6 +31,21 @@ fun defineClass(instance: ClassLoader, name: String, data: ByteArray, offset: In
             transformed.second,
             0,
             transformed.second.size) as Class<*>
+}
+
+fun defineClass(instance: ClassLoader, name: String, data: ByteArray, offset: Int, length: Int, protectionDomain: ProtectionDomain): Class<*> {
+    val transformed = Transformers.transform(data)
+        ?: return defineClassWithDomain.invokeExact(instance,
+            name, data, offset, length, protectionDomain) as Class<*>
+
+    return defineClassWithDomain
+        .invokeExact(
+            instance,
+            transformed.first.replace("/", "."),
+            transformed.second,
+            0,
+            transformed.second.size,
+            protectionDomain) as Class<*>
 }
 
 // called from transformed code
