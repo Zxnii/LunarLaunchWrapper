@@ -27,4 +27,25 @@ fun <K, V> create(k1: K, v1: V, k2: K, v2: V): Map<K, V> =
 
 fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V): Map<K, V> =
     process(k1 to v1, k2 to v2, k3 to v3)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V, k5: K, v5: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4, k5 to v5)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V, k5: K, v5: V, k6: K, v6: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4, k5 to v5, k6 to v6)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V, k5: K, v5: V, k6: K, v6: V, k7: K, v7: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4, k5 to v5, k6 to v6, k7 to v7)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V, k5: K, v5: V, k6: K, v6: V, k7: K, v7: V, k8: K, v8: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4, k5 to v5, k6 to v6, k7 to v7, k8 to v8)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V, k5: K, v5: V, k6: K, v6: V, k7: K, v7: V, k8: K, v8: V, k9: K, v9: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4, k5 to v5, k6 to v6, k7 to v7, k8 to v8, k9 to v9)
+
+fun <K, V> create(k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V, k5: K, v5: V, k6: K, v6: V, k7: K, v7: V, k8: K, v8: V, k9: K, v9: V, k10: K, v10: V): Map<K, V> =
+    process(k1 to v1, k2 to v2, k3 to v3, k4 to v4, k5 to v5, k6 to v6, k7 to v7, k8 to v8, k9 to v9, k10 to v10)
     
